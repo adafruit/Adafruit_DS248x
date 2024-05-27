@@ -98,6 +98,114 @@ bool Adafruit_DS248x::OneWireReset() {
     return (status != 0xFF) && !shortDetected() && presencePulseDetected();
 }
 
+/*!
+ *    @brief  Writes a byte to the 1-Wire bus
+ *    @param  byte
+ *            The byte to write
+ *    @return True if writing was successful, otherwise false
+ */
+bool Adafruit_DS248x::OneWireWriteByte(uint8_t byte) {
+    // Wait for the bus to be free
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    // Send the 1-Wire write byte command followed by the byte to write
+    uint8_t cmd[2] = { DS248X_CMD_1WIRE_WRITE_BYTE, byte };
+    if (!i2c_dev->write(cmd, 2)) {
+        return false; // Return false if writing the command fails
+    }
+
+    // Wait for the write operation to complete
+    return busyWait(1000); // Return false if the bus is busy after the timeout
+}
+
+
+/*!
+ *    @brief  Reads a byte from the 1-Wire bus
+ *    @param  byte
+ *            Pointer to the byte to store the read value
+ *    @return True if reading was successful, otherwise false
+ */
+bool Adafruit_DS248x::OneWireReadByte(uint8_t *byte) {
+    // Wait for the bus to be free
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    // Send the 1-Wire read byte command
+    uint8_t cmd = DS248X_CMD_1WIRE_READ_BYTE;
+    if (!i2c_dev->write(&cmd, 1)) {
+        return false; // Return false if writing the command fails
+    }
+
+    // Wait for the read operation to complete
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    // Read the byte from the read data register
+    if (!setReadPointer(DS248X_REG_READ_DATA)) {
+        return false; // Return false if setting the read pointer fails
+    }
+
+    if (!i2c_dev->read(byte, 1)) {
+        return false; // Return false if reading the byte fails
+    }
+
+    return true;
+}
+
+
+/*!
+ *    @brief  Reads a single bit from the 1-Wire bus
+ *    @param  bit
+ *            Pointer to the boolean to store the read value
+ *    @return True if reading was successful, otherwise false
+ */
+bool Adafruit_DS248x::OneWireReadBit(uint8_t *bit) {
+    // Wait for the bus to be free
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    if (! OneWireWriteBit(1)) {
+        return false; // Return false if writing the command fails
+    }
+
+    // Wait for the read operation to complete
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    // Read the single bit result
+    uint8_t status = readStatus();
+    if (status == 0xFF) {
+        return false; // Return false if reading the status fails
+    }
+
+    *bit = singleBitResult();
+    return true;
+}
+
+/*!
+ *    @brief  Writes a single bit to the 1-Wire bus
+ *    @param  bit
+ *            The boolean value to write
+ *    @return True if writing was successful, otherwise false
+ */
+bool Adafruit_DS248x::OneWireWriteBit(bool bit) {
+    // Wait for the bus to be free
+    if (!busyWait(1000)) {
+        return false; // Return false if the bus is busy after the timeout
+    }
+
+    // Send the 1-Wire single bit write command followed by the bit to write
+    uint8_t cmd[2] = { DS248X_CMD_1WIRE_SINGLE_BIT, bit ? (uint8_t)0x80 : (uint8_t)0x00 };
+    
+    return i2c_dev->write(cmd, 2);
+}
+
 
 
 /*!
@@ -352,4 +460,147 @@ uint8_t Adafruit_DS248x::readStatus() {
 bool Adafruit_DS248x::setReadPointer(uint8_t reg) {
     uint8_t cmd[2] = { DS248X_CMD_SET_READ_PTR, reg };
     return i2c_dev->write(cmd, 2);
+}
+
+
+
+/*!
+ *    @brief  Resets the search state for 1-Wire devices
+ *    @return True if the search reset was successful, otherwise false
+ */
+bool Adafruit_DS248x::OneWireSearchReset() {
+    // Reset search state
+    LastDiscrepancy = 0;
+    LastDeviceFlag = false;
+    LastFamilyDiscrepancy = 0;
+
+    return true;
+}
+
+
+/*!
+ *    @brief  Searches for the next 1-Wire device
+ *    @param  newAddr
+ *            Pointer to an array to store the found address
+ *    @return True if a new device was found, otherwise false
+ */
+bool Adafruit_DS248x::OneWireSearch(uint8_t *newAddr) {
+    bool search_result = false;
+    uint8_t id_bit_number = 1;
+    uint8_t last_zero = 0;
+    uint8_t rom_byte_number = 0;
+    uint8_t rom_byte_mask = 1;
+    uint8_t id_bit, cmp_id_bit;
+    bool search_direction;
+
+    // If the last call was not the last one
+    if (!LastDeviceFlag) {
+        // Perform a 1-Wire reset
+        if (!OneWireReset()) {
+            // Reset the search state
+            LastDiscrepancy = 0;
+            LastDeviceFlag = false;
+            LastFamilyDiscrepancy = 0;
+            return false;
+        }
+        Serial.println("Reset");
+
+        // Issue the search command
+        if (!OneWireWriteByte(0xF0)) { // Normal search command
+            return false;
+        }
+        Serial.println("0xF0 cmd");
+
+        // Loop to do the search
+        do {
+            // Read a bit and its complement
+            if (!OneWireReadBit(&id_bit) || !OneWireReadBit(&cmp_id_bit)) {
+                return false;
+            }
+
+            Serial.println("Read 2 bits");
+
+            // Check for no devices on the 1-Wire
+            if (id_bit && cmp_id_bit) {
+              Serial.println("no dev participating");
+                break; // No devices participating
+            } else {
+                // All devices coupled have 0 or 1
+                if (id_bit != cmp_id_bit) {
+                    search_direction = id_bit; // Bit write value for search
+                } else {
+                    // If this discrepancy is before the Last Discrepancy
+                    // on a previous next, then pick the same as last time
+                    if (id_bit_number < LastDiscrepancy) {
+                        search_direction = ((ROM_NO[rom_byte_number] & rom_byte_mask) > 0);
+                    } else {
+                        // If equal to last, pick 1, if not then pick 0
+                        search_direction = (id_bit_number == LastDiscrepancy);
+                    }
+
+                    // If 0 was picked, then record its position in LastZero
+                    if (!search_direction) {
+                        last_zero = id_bit_number;
+
+                        // Check for Last discrepancy in family
+                        if (last_zero < 9) {
+                            LastFamilyDiscrepancy = last_zero;
+                        }
+                    }
+                }
+
+                // Set or clear the bit in the ROM byte rom_byte_number with mask rom_byte_mask
+                Serial.print(id_bit_number); Serial.print(" : ");
+                Serial.println(search_direction);
+                if (search_direction) {
+                    ROM_NO[rom_byte_number] |= rom_byte_mask;
+                } else {
+                    ROM_NO[rom_byte_number] &= ~rom_byte_mask;
+                }
+
+                // Serial number search direction write bit
+                if (!OneWireWriteBit(search_direction)) {
+                    return false;
+                }
+
+                // Increment the byte counter id_bit_number and shift the mask rom_byte_mask
+                id_bit_number++;
+                rom_byte_mask <<= 1;
+
+                // If the mask is 0, then go to new SerialNum byte rom_byte_number and reset mask
+                if (rom_byte_mask == 0) {
+                    rom_byte_number++;
+                    rom_byte_mask = 1;
+                }
+            }
+        } while (rom_byte_number < 8); // Loop until through all ROM bytes 0-7
+
+        // If the search was successful, then
+        if (!(id_bit_number < 65)) {
+            // Search successful, so set LastDiscrepancy, LastDeviceFlag, search_result
+            LastDiscrepancy = last_zero;
+
+            // Check for last device
+            if (LastDiscrepancy == 0) {
+                LastDeviceFlag = true;
+            }
+
+            search_result = true;
+        }
+    }
+
+    // If no device found, then reset counters so next 'search' will be like a first
+    if (!search_result || !ROM_NO[0]) {
+      Serial.println("no search result");
+        LastDiscrepancy = 0;
+        LastDeviceFlag = false;
+        LastFamilyDiscrepancy = 0;
+        search_result = false;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        newAddr[i] = ROM_NO[i];
+    }
+
+    return search_result;
 }

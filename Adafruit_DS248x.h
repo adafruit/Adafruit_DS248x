@@ -28,6 +28,12 @@ public:
     bool reset();
 
     bool OneWireReset();
+    bool OneWireReadByte(uint8_t *byte);
+    bool OneWireWriteByte(uint8_t byte);
+    bool OneWireReadBit(uint8_t *bit);
+    bool OneWireWriteBit(bool bit);
+    bool OneWireSearchReset();
+    bool OneWireSearch(uint8_t *newAddr);
 
     // status bit getters
     bool is1WBusy();
@@ -47,6 +53,12 @@ public:
     bool busyWait(uint16_t timeout_ms);
 
 private:
+    uint8_t ROM_NO[8];
+    uint8_t LastDiscrepancy;
+    uint8_t LastFamilyDiscrepancy;
+    bool LastDeviceFlag;
+    bool search_result;
+
     uint8_t _address;
     Adafruit_I2CDevice *i2c_dev = nullptr;
 
