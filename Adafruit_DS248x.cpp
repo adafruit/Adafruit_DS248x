@@ -503,13 +503,11 @@ bool Adafruit_DS248x::OneWireSearch(uint8_t *newAddr) {
             LastFamilyDiscrepancy = 0;
             return false;
         }
-        Serial.println("Reset");
 
         // Issue the search command
         if (!OneWireWriteByte(0xF0)) { // Normal search command
             return false;
         }
-        Serial.println("0xF0 cmd");
 
         // Loop to do the search
         do {
@@ -518,11 +516,8 @@ bool Adafruit_DS248x::OneWireSearch(uint8_t *newAddr) {
                 return false;
             }
 
-            Serial.println("Read 2 bits");
-
             // Check for no devices on the 1-Wire
             if (id_bit && cmp_id_bit) {
-              Serial.println("no dev participating");
                 break; // No devices participating
             } else {
                 // All devices coupled have 0 or 1
@@ -550,8 +545,8 @@ bool Adafruit_DS248x::OneWireSearch(uint8_t *newAddr) {
                 }
 
                 // Set or clear the bit in the ROM byte rom_byte_number with mask rom_byte_mask
-                Serial.print(id_bit_number); Serial.print(" : ");
-                Serial.println(search_direction);
+                //Serial.print(id_bit_number); Serial.print(" : ");
+                //Serial.println(search_direction);
                 if (search_direction) {
                     ROM_NO[rom_byte_number] |= rom_byte_mask;
                 } else {
@@ -591,7 +586,6 @@ bool Adafruit_DS248x::OneWireSearch(uint8_t *newAddr) {
 
     // If no device found, then reset counters so next 'search' will be like a first
     if (!search_result || !ROM_NO[0]) {
-      Serial.println("no search result");
         LastDiscrepancy = 0;
         LastDeviceFlag = false;
         LastFamilyDiscrepancy = 0;

@@ -57,7 +57,6 @@ private:
     uint8_t LastDiscrepancy;
     uint8_t LastFamilyDiscrepancy;
     bool LastDeviceFlag;
-    bool search_result;
 
     uint8_t _address;
     Adafruit_I2CDevice *i2c_dev = nullptr;
