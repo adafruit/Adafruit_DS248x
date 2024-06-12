@@ -1,8 +1,8 @@
 #ifndef ADAFRUIT_DS248X_H
 #define ADAFRUIT_DS248X_H
 
-#include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
+#include <Arduino.h>
 
 #define DS248X_ADDRESS 0x18
 
@@ -21,52 +21,54 @@
 #define DS248X_REG_READ_DATA 0xE1
 #define DS248X_REG_CONFIG 0xC3
 
+/**! Class to hold interface for DS248x chip */
+
 class Adafruit_DS248x {
 public:
-    Adafruit_DS248x();
-    bool begin(TwoWire *theWire = &Wire, uint8_t address = DS248X_ADDRESS);
-    bool reset();
+  Adafruit_DS248x();
+  bool begin(TwoWire *theWire = &Wire, uint8_t address = DS248X_ADDRESS);
+  bool reset();
 
-    bool OneWireReset();
-    bool OneWireReadByte(uint8_t *byte);
-    bool OneWireWriteByte(uint8_t byte);
-    bool OneWireReadBit(uint8_t *bit);
-    bool OneWireWriteBit(bool bit);
-    bool OneWireSearchReset();
-    bool OneWireSearch(uint8_t *newAddr);
+  bool OneWireReset();
+  bool OneWireReadByte(uint8_t *byte);
+  bool OneWireWriteByte(uint8_t byte);
+  bool OneWireReadBit(uint8_t *bit);
+  bool OneWireWriteBit(bool bit);
+  bool OneWireSearchReset();
+  bool OneWireSearch(uint8_t *newAddr);
 
-    // status bit getters
-    bool is1WBusy();
-    bool presencePulseDetected();
-    bool shortDetected();
-    bool logicLevel();
-    bool singleBitResult();
-    bool tripletSecondBit();
-    bool branchDirTaken();
+  // status bit getters
+  bool is1WBusy();
+  bool presencePulseDetected();
+  bool shortDetected();
+  bool logicLevel();
+  bool singleBitResult();
+  bool tripletSecondBit();
+  bool branchDirTaken();
 
-    // configuration bit setters
-    bool activePullup(bool enable);
-    bool powerDown(bool enable);
-    bool strongPullup(bool enable);
-    bool overdriveSpeed(bool enable);
+  // configuration bit setters
+  bool activePullup(bool enable);
+  bool powerDown(bool enable);
+  bool strongPullup(bool enable);
+  bool overdriveSpeed(bool enable);
 
-    bool busyWait(uint16_t timeout_ms);
+  bool busyWait(uint16_t timeout_ms);
 
 private:
-    uint8_t ROM_NO[8];
-    uint8_t LastDiscrepancy;
-    uint8_t LastFamilyDiscrepancy;
-    bool LastDeviceFlag;
+  uint8_t ROM_NO[8];
+  uint8_t LastDiscrepancy;
+  uint8_t LastFamilyDiscrepancy;
+  bool LastDeviceFlag;
 
-    uint8_t _address;
-    Adafruit_I2CDevice *i2c_dev = nullptr;
+  uint8_t _address;
+  Adafruit_I2CDevice *i2c_dev = nullptr;
 
-    uint8_t readConfig();
-    bool writeConfig(uint8_t config);
+  uint8_t readConfig();
+  bool writeConfig(uint8_t config);
 
-    uint8_t readStatus();
+  uint8_t readStatus();
 
-    bool setReadPointer(uint8_t reg);
+  bool setReadPointer(uint8_t reg);
 };
 
 #endif // ADAFRUIT_DS248X_H
