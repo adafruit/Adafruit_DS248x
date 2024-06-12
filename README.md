@@ -1,10 +1,10 @@
 # Adafruit DS248x [![Build Status](https://github.com/adafruit/Adafruit_DS248x/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_DS248x/actions)[![Documentation](https://github.com/adafruit/ci-arduino/blob/master/assets/doxygen_badge.svg)](http://adafruit.github.io/Adafruit_DS248x/html/index.html)
 
-<a href="https://www.adafruit.com/products/xxxx"><img src="assets/board.jpg?raw=true" width="500px"></a>
+<a href="https://www.adafruit.com/products/5976"><img src="assets/board.jpg?raw=true" width="500px"></a>
 
 This is the Adafruit DS248x I2C to 1-Wire converter library
 
-Tested and works great with the Adafruit DS248x Breakout Board: https://www.adafruit.com/product/XXXX
+Tested and works great with the Adafruit DS248x Breakout Board: https://www.adafruit.com/product/5976
 
 This chip uses I2C to communicate, 2 pins are required to interface
 
