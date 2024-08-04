@@ -80,6 +80,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a381811bef84a07f56d81b54ee1d6f6e6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___d_s248x.html#a381811bef84a07f56d81b54ee1d6f6e6">reset</a> ()</td></tr>
 <tr class="memdesc:a381811bef84a07f56d81b54ee1d6f6e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the DS248x device.  <a href="#a381811bef84a07f56d81b54ee1d6f6e6">More...</a><br /></td></tr>
 <tr class="separator:a381811bef84a07f56d81b54ee1d6f6e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96734f4c5e1472f831e388bc5b0003d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___d_s248x.html#a96734f4c5e1472f831e388bc5b0003d5">selectChannel</a> (uint8_t chan)</td></tr>
+<tr class="memdesc:a96734f4c5e1472f831e388bc5b0003d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects which of 8 channels on DS2482-800 chipset.  <a href="#a96734f4c5e1472f831e388bc5b0003d5">More...</a><br /></td></tr>
+<tr class="separator:a96734f4c5e1472f831e388bc5b0003d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31bb367b48fbaa504d108e79d0b75bcd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_adafruit___d_s248x.html#a31bb367b48fbaa504d108e79d0b75bcd">OneWireReset</a> ()</td></tr>
 <tr class="memdesc:a31bb367b48fbaa504d108e79d0b75bcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends a 1-Wire reset command and verifies the reset.  <a href="#a31bb367b48fbaa504d108e79d0b75bcd">More...</a><br /></td></tr>
 <tr class="separator:a31bb367b48fbaa504d108e79d0b75bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -196,6 +199,33 @@ Public Member Functions</h2></td></tr>
 
 <p>Resets the DS248x device. </p>
 <dl class="section return"><dt>Returns</dt><dd>True if reset was successful, otherwise false </dd></dl>
+
+</div>
+</div>
+<a id="a96734f4c5e1472f831e388bc5b0003d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a96734f4c5e1472f831e388bc5b0003d5">&#9670;&nbsp;</a></span>selectChannel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Adafruit_DS248x::selectChannel </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>chan</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Selects which of 8 channels on DS2482-800 chipset. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">chan</td><td>Channel to use, from #0 to #7 inclusive </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True on command success </dd></dl>
 
 </div>
 </div>
