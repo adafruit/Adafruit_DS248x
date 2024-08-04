@@ -76,6 +76,27 @@ bool Adafruit_DS248x::reset() {
 }
 
 /*!
+ *    @brief  Selects which of 8 channels on DS2482-800 chipset
+ *    @param  chan Channel to use, from #0 to #7 inclusive
+ *    @return True on command success
+ */
+bool Adafruit_DS248x::selectChannel(uint8_t chan) {
+  if (chan > 7)
+    return false;
+  uint8_t channelcode = chan + (~chan << 4);
+
+  uint8_t cmd[2] = {DS248X_CMD_CHANNEL_SELECT, channelcode};
+  uint8_t reply;
+
+  if (!i2c_dev->write_then_read(cmd, 2, &reply, 1)) {
+    return false;
+  }
+
+  uint8_t returncodes[] = {0xB8, 0xB1, 0xAA, 0xA3, 0x9C, 0x95, 0x8E, 0x87};
+  return (returncodes[chan] == reply);
+}
+
+/*!
  *    @brief  Sends a 1-Wire reset command and verifies the reset
  *    @return True if the reset was successful, otherwise false
  */

@@ -15,6 +15,7 @@
 #define DS248X_CMD_1WIRE_WRITE_BYTE 0xA5
 #define DS248X_CMD_1WIRE_READ_BYTE 0x96
 #define DS248X_CMD_1WIRE_TRIPLET 0x78
+#define DS248X_CMD_CHANNEL_SELECT 0xC3
 
 // DS248x Register Definitions
 #define DS248X_REG_STATUS 0xF0
@@ -28,6 +29,7 @@ public:
   Adafruit_DS248x();
   bool begin(TwoWire *theWire = &Wire, uint8_t address = DS248X_ADDRESS);
   bool reset();
+  bool selectChannel(uint8_t chan);
 
   bool OneWireReset();
   bool OneWireReadByte(uint8_t *byte);
