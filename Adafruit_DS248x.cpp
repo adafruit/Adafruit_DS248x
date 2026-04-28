@@ -66,9 +66,10 @@ bool Adafruit_DS248x::begin(TwoWire *theWire, uint8_t address) {
  */
 bool Adafruit_DS248x::reset() {
   uint8_t cmd = DS248X_CMD_RESET;
-  if (!i2c_dev->write(&cmd, 1)) {
-    return false;
-  }
+  // DS248x resets immediately on this command and may NACK the stop condition.
+  // Verify reset using the status register instead of write() return value.
+  i2c_dev->write(&cmd, 1);
+  delay(2);
 
   uint8_t status = readStatus();
   return (status != 0xFF) &&
