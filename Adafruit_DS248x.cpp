@@ -69,6 +69,7 @@ bool Adafruit_DS248x::reset() {
   // DS248x resets immediately on this command and may NACK the stop condition.
   // Verify reset using the status register instead of write() return value.
   i2c_dev->write(&cmd, 1);
+  // Allow the device to complete its internal reset before reading status.
   delay(2);
 
   uint8_t status = readStatus();
